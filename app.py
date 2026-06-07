@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 from transformers import pipeline
 import time, random, os
 
+
 app = Flask(__name__)
 classifier = pipeline(
     "sentiment-analysis",
