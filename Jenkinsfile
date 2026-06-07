@@ -1,20 +1,17 @@
 pipeline {
     agent any
-
     environment {
         DOCKERHUB_USER = "maryamyaqoob8381"
         IMAGE_NAME = "sentiment-api"
         UNSTABLE_IMAGE = "${DOCKERHUB_USER}/${IMAGE_NAME}:unstable"
         STABLE_IMAGE = "${DOCKERHUB_USER}/${IMAGE_NAME}:stable"
     }
-
     stages {
         stage('Fetch') {
             steps {
                 checkout scm
             }
         }
-
         stage('Build and Run') {
             steps {
                 sh '''
@@ -25,7 +22,6 @@ pipeline {
                 '''
             }
         }
-
         stage('Unit Test') {
             steps {
                 sh '''
@@ -35,7 +31,6 @@ pipeline {
                 '''
             }
         }
-
         stage('UI Test') {
             steps {
                 sh '''
@@ -45,9 +40,14 @@ pipeline {
                 '''
             }
         }
-
         stage('Build and Push') {
             steps {
+                sh '''
+                    docker rm -f sentiment-test || true
+                    docker rmi sentiment-api-test || true
+                    docker image prune -f || true
+                    docker builder prune -f || true
+                '''
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-creds',
                     usernameVariable: 'DOCKER_USER',
@@ -56,14 +56,16 @@ pipeline {
                     sh '''
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                         docker build -t $UNSTABLE_IMAGE .
-                        docker build -t $STABLE_IMAGE ./stable-fallback
                         docker push $UNSTABLE_IMAGE
+                        docker rmi $UNSTABLE_IMAGE || true
+                        docker image prune -f || true
+                        docker build -t $STABLE_IMAGE ./stable-fallback
                         docker push $STABLE_IMAGE
+                        docker rmi $STABLE_IMAGE || true
                     '''
                 }
             }
         }
-
         stage('Deploy to Minikube') {
             steps {
                 sh '''
@@ -75,10 +77,13 @@ pipeline {
             }
         }
     }
-
     post {
         always {
-            sh 'docker rm -f sentiment-test || true'
+            sh '''
+                docker rm -f sentiment-test || true
+                docker rmi sentiment-api-test || true
+                docker image prune -f || true
+            '''
         }
     }
 }

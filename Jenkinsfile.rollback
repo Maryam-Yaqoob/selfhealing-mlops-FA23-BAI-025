@@ -1,0 +1,18 @@
+pipeline {
+    agent any
+    triggers {
+        GenericTrigger(
+            token: 'ROLLBACK_E31CBC_TOKEN'
+        )
+    }
+    stages {
+        stage('Switch Traffic to Stable (Green)') {
+            steps {
+                sh '''
+                    kubectl patch service sentiment-api-service \
+                    -p '{"spec":{"selector":{"slot":"green"}}}'
+                '''
+            }
+        }
+    }
+}
