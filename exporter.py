@@ -4,7 +4,7 @@ from prometheus_client import start_http_server, Gauge
 
 CONFIDENCE_SCORE = Gauge('prediction_confidence_score', 'Latest prediction confidence score')
 
-APP_URL = "http://localhost:32500/api/latest-confidence"
+APP_URL = "http://192.168.49.2:32500/api/latest-confidence"
 
 def collect_metrics():
     while True:
