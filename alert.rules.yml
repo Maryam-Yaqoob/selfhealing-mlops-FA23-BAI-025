@@ -1,11 +1,10 @@
 groups:
-- name: sentiment-alerts
-  rules:
-  - alert: ModelConfidenceDrift
-    expr: prediction_confidence_score < 0.597
-    for: 1m
-    labels:
-      severity: critical
-    annotations:
-      summary: "Model confidence drift detected"
-      description: "Prediction confidence dropped below threshold"
+  - name: ml_alerts
+    rules:
+      - alert: ModelConfidenceDrift
+        expr: prediction_confidence_score < 0.597
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Model confidence dropped below threshold"
