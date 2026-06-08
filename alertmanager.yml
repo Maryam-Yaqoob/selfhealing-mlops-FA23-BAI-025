@@ -11,4 +11,4 @@ receivers:
         http_config:
           basic_auth:
             username: 'admin'
-            password: 'YOUR_JENKINS_API_TOKEN'
+            password: '112da628fd8fe19899491f7a304a43ade4'
