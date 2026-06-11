@@ -9,8 +9,8 @@ pipeline {
         stage('Switch Traffic to Stable (Green)') {
             steps {
                 sh '''
-                    kubectl patch service sentiment-api-service \
-                    -p \'{"spec":{"selector":{"slot":"green"}}}\'
+                    ssh -o StrictHostKeyChecking=no ubuntu@172.31.34.177 \
+                    "kubectl patch service sentiment-api-service -p '{\"spec\":{\"selector\":{\"slot\":\"green\"}}}'"
                 '''
             }
         }
