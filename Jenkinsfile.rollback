@@ -10,7 +10,7 @@ pipeline {
             steps {
                 sh '''
                     kubectl patch service sentiment-api-service \
-                    -p '{"spec":{"selector":{"slot":"green"}}}'
+                    -p \'{"spec":{"selector":{"slot":"green"}}}\'
                 '''
             }
         }
