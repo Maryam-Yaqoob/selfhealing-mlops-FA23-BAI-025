@@ -5,10 +5,8 @@ pipeline {
         stage('Switch Traffic to Stable (Green)') {
             steps {
                 sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@172.31.34.177 "cat > /tmp/rollback-patch.json <<'PATCH'
-{\"spec\":{\"selector\":{\"app\":\"sentiment-api\",\"slot\":\"green\"}}}
-PATCH
-kubectl patch service sentiment-api-service --patch-file /tmp/rollback-patch.json"
+                    ssh -o StrictHostKeyChecking=no ubuntu@172.31.34.177 \
+                    "kubectl set selector service/sentiment-api-service app=sentiment-api slot=green --overwrite"
                 '''
             }
         }
