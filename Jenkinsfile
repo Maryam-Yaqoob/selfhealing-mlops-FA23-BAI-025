@@ -33,7 +33,6 @@ pipeline {
                     sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
                     sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:unstable"
                     
-                    // Groovy compliant comments fixed here
                     sh "git fetch origin stable-fallback"
                     sh "git checkout refs/remotes/origin/stable-fallback --"
                     sh "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:stable ."
@@ -45,10 +44,11 @@ pipeline {
         }
         stage('Deploy to Minikube') {
             steps {
-                sh "kubectl apply -f k8s/pvc.yaml"
-                sh "kubectl apply -f k8s/blue-deployment.yaml"
-                sh "kubectl apply -f k8s/green-deployment.yaml"
-                sh "kubectl apply -f k8s/service.yaml"
+                // Hamari naye working proxy path context logic ko pipeline deploy me bind kiya gaya hai
+                sh "kubectl apply -f k8s/pvc.yaml --kubeconfig=/tmp/.kube/config"
+                sh "kubectl apply -f k8s/blue-deployment.yaml --kubeconfig=/tmp/.kube/config"
+                sh "kubectl apply -f k8s/green-deployment.yaml --kubeconfig=/tmp/.kube/config"
+                sh "kubectl apply -f k8s/service.yaml --kubeconfig=/tmp/.kube/config"
             }
         }
     }
