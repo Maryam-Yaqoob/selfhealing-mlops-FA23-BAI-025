@@ -8,7 +8,6 @@ pipeline {
     stages {
         stage('Fetch') {
             steps {
-                // SCM checkout ko explicitly fallback de rahe hain
                 checkout scm: [
                     $class: 'GitSCM', 
                     branches: [[name: '*/main']], 
@@ -31,8 +30,9 @@ pipeline {
             steps {
                 sh "docker rm -f sentiment-test-app || true"
                 withCredentials([usernamePassword(credentialsId: "${REGISTRY_CRED}", passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-                    sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+                    sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
                     sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:unstable"
+                    
                     sh "git checkout stable-fallback"
                     sh "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:stable ."
                     sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:stable"
