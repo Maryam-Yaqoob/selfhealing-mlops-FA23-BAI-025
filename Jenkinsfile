@@ -33,10 +33,13 @@ pipeline {
                     sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
                     sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:unstable"
                     
-                    sh "git checkout stable-fallback"
+                    # Ambiguity issue ko fix karne k liye '--' aur fetch strategy standard check output lagayi hai
+                    sh "git fetch origin stable-fallback"
+                    sh "git checkout refs/remotes/origin/stable-fallback --"
                     sh "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:stable ."
                     sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:stable"
-                    sh "git checkout main"
+                    
+                    sh "git checkout main --"
                 }
             }
         }
