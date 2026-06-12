@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    options {
+        // Yeh hidden default automatic checkout ko crash hone se rokega
+        skipDefaultCheckout()
+    }
     environment {
         DOCKERHUB_USER = 'maryamyaqoob8381'
         IMAGE_NAME     = 'sentiment-api'
@@ -7,7 +11,7 @@ pipeline {
     stages {
         stage('Fetch Rollback Script') {
             steps {
-                // Faulty auto-checkout bypass karne k liye explicit clean fetch laga diya
+                // Ab sirf hamara yeh explicit safe checkout chalega
                 checkout scm: [
                     $class: 'GitSCM', 
                     branches: [[name: '*/main']], 
@@ -21,7 +25,6 @@ pipeline {
                 echo "Alertmanager triggered fallback loop! Reverting cluster to stable dynamic tag..."
                 sh "kubectl apply -f k8s/pvc.yaml --kubeconfig=/tmp/.kube/config"
                 
-                // Live container image pointer ko unstable se stable rollback context par force update karein
                 sh "kubectl set image deployment/sentiment-blue-deployment sentiment-api=${DOCKERHUB_USER}/${IMAGE_NAME}:stable --kubeconfig=/tmp/.kube/config"
                 sh "kubectl set image deployment/sentiment-green-deployment sentiment-api=${DOCKERHUB_USER}/${IMAGE_NAME}:stable --kubeconfig=/tmp/.kube/config"
                 
