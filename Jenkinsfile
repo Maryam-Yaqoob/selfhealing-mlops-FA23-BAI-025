@@ -44,7 +44,6 @@ pipeline {
         }
         stage('Deploy to Minikube') {
             steps {
-                // Hamari naye working proxy path context logic ko pipeline deploy me bind kiya gaya hai
                 sh "kubectl apply -f k8s/pvc.yaml --kubeconfig=/tmp/.kube/config"
                 sh "kubectl apply -f k8s/blue-deployment.yaml --kubeconfig=/tmp/.kube/config"
                 sh "kubectl apply -f k8s/green-deployment.yaml --kubeconfig=/tmp/.kube/config"
