@@ -15,8 +15,7 @@ spec:
         slot: green
     spec:
       containers:
-      - name: sentiment-api
-        image: maryamyaqoob8381/sentiment-api:stable
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 5000
+        - name: sentiment-api
+          image: maryamyaqoob8381/sentiment-api:stable
+          ports:
+            - containerPort: 5000

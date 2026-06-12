@@ -15,15 +15,14 @@ spec:
         slot: blue
     spec:
       containers:
-      - name: sentiment-api
-        image: maryamyaqoob8381/sentiment-api:unstable
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 5000
-        volumeMounts:
-        - name: logs-volume
-          mountPath: /app/logs
+        - name: sentiment-api
+          image: maryamyaqoob8381/sentiment-api:unstable
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: log-volume
+              mountPath: /app/logs
       volumes:
-      - name: logs-volume
-        persistentVolumeClaim:
-          claimName: sentiment-logs-pvc
+        - name: log-volume
+          persistentVolumeClaim:
+            claimName: sentiment-pvc

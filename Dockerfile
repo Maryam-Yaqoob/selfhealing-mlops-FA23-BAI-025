@@ -1,29 +1,27 @@
 FROM python:3.10-slim
 
+# Working directory set karein
 WORKDIR /app
 
-# Install Chromium + driver for Selenium UI tests (run inside this container)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        chromium \
-        chromium-driver \
-        wget \
+# System dependencies install karein (Selenium headless ke liye)
+RUN apt-get update && apt-get install -y \
+    chromium \
+    chromium-driver \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-ENV CHROME_BIN=/usr/bin/chromium
-ENV PATH="/usr/lib/chromium:${PATH}"
-
+# Requirements copy aur install karein
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --no-cache-dir torch==2.3.0 --index-url https://download.pytorch.org/whl/cpu \
-    && pip install --no-cache-dir -r requirements.txt
+# Baki saara application code copy karein
+COPY . .
 
-COPY app.py .
-COPY templates/ templates/
-COPY tests/ tests/
-COPY tests/ tests/
-
+# Logs directory create karein
 RUN mkdir -p /app/logs
 
+# Port expose karein
 EXPOSE 5000
 
+# App chalane ki command
 CMD ["python", "app.py"]

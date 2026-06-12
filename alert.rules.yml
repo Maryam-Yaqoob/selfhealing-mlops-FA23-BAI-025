@@ -1,5 +1,5 @@
 groups:
-  - name: ml_alerts
+  - name: ml_drift_rules
     rules:
       - alert: ModelConfidenceDrift
         expr: prediction_confidence_score < 0.597
@@ -7,4 +7,5 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Model confidence dropped below threshold"
+          summary: "Model accuracy degradation detected"
+          description: "Prediction confidence score dropped below 0.597 for over 1 minute."

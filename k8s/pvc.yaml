@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: sentiment-logs-pvc
+  name: sentiment-pvc
 spec:
   accessModes:
     - ReadWriteOnce

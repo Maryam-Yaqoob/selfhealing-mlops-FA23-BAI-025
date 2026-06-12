@@ -2,22 +2,28 @@ import time
 import requests
 from prometheus_client import start_http_server, Gauge
 
-CONFIDENCE_SCORE = Gauge('prediction_confidence_score', 'Latest prediction confidence score')
+# Metric definition
+PREDICTION_CONFIDENCE = Gauge('prediction_confidence_score', 'Latest prediction confidence score from the ML model')
 
-APP_URL = "http://192.168.49.2:32500/api/latest-confidence"
+# Application NodePort URL inside EC2
+APP_URL = "http://localhost:32500/api/latest-confidence"
 
-def collect_metrics():
+def track_metrics():
     while True:
         try:
-            response = requests.get(APP_URL, timeout=5)
-            data = response.json()
-            confidence = data.get("confidence", 1.0)
-            CONFIDENCE_SCORE.set(confidence)
+            response = requests.get(APP_URL, timeout=2)
+            if response.status_code == 200:
+                data = response.json()
+                confidence = data.get("confidence", 1.0)
+                PREDICTION_CONFIDENCE.set(confidence)
+            else:
+                PREDICTION_CONFIDENCE.set(1.0)
         except Exception:
-            CONFIDENCE_SCORE.set(1.0)
+            PREDICTION_CONFIDENCE.set(1.0)
         time.sleep(5)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    # Exporter port 8000 par start karein
     start_http_server(8000)
-    print("Exporter running on port 8000")
-    collect_metrics()
+    print("Prometheus Custom Exporter running on port 8000...")
+    track_metrics()

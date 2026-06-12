@@ -8,7 +8,6 @@ spec:
     app: sentiment-api
     slot: blue
   ports:
-  - protocol: TCP
-    port: 5000
-    targetPort: 5000
-    nodePort: 32500
+    - port: 5000
+      targetPort: 5000
+      nodePort: 32500
