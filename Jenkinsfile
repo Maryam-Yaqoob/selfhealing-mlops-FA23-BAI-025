@@ -66,20 +66,14 @@ pipeline {
                 }
             }
         }
-        stage("Deploy to Minikube") {
+        stage('Deploy to Minikube') {
             steps {
-                sh """
-                    ssh -o StrictHostKeyChecking=no ubuntu@${EC2_HOST} 'mkdir -p /home/ubuntu/k8s'
-                    scp -o StrictHostKeyChecking=no k8s/*.yaml ubuntu@${EC2_HOST}:/home/ubuntu/k8s/
-                    ssh -o StrictHostKeyChecking=no ubuntu@${EC2_HOST} '
-                        kubectl apply -f /home/ubuntu/k8s/pvc.yaml
-                        kubectl apply -f /home/ubuntu/k8s/blue-deployment.yaml
-                        kubectl apply -f /home/ubuntu/k8s/green-deployment.yaml
-                        kubectl apply -f /home/ubuntu/k8s/service.yaml
-                        kubectl rollout status deployment/sentiment-blue-deployment --timeout=120s
-                        kubectl rollout status deployment/sentiment-green-deployment --timeout=120s
-                    '
-                """
+                sh '''
+                    kubectl apply -f k8s/pvc.yaml
+                    kubectl apply -f k8s/blue-deployment.yaml
+                    kubectl apply -f k8s/green-deployment.yaml
+                    kubectl apply -f k8s/service.yaml
+                '''
             }
         }
     }
