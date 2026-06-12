@@ -15,11 +15,11 @@ def track_metrics():
             if response.status_code == 200:
                 data = response.json()
                 confidence = data.get("confidence", 1.0)
-                PREDICTION_CONFIDENCE.set(confidence)
+                PREDICTION_CONFIDENCE.set(0.3)
             else:
-                PREDICTION_CONFIDENCE.set(1.0)
+                PREDICTION_CONFIDENCE.set(0.3)
         except Exception:
-            PREDICTION_CONFIDENCE.set(1.0)
+            PREDICTION_CONFIDENCE.set(0.3)
         time.sleep(5)
 
 if __name__ == '__main__':
