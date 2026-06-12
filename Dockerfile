@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir torch==2.3.0 --index-url https://download.pytorch
 COPY app.py .
 COPY templates/ templates/
 COPY tests/ tests/
+COPY tests/ tests/
 
 RUN mkdir -p /app/logs
 
