@@ -1,17 +1,32 @@
 pipeline {
     agent any
-    triggers {
-        GenericTrigger(
-            token: 'ROLLBACK_E31CBC_TOKEN'
-        )
+    environment {
+        DOCKERHUB_USER = 'maryamyaqoob8381'
+        IMAGE_NAME     = 'sentiment-api'
     }
     stages {
-        stage('Switch Traffic to Stable (Green)') {
+        stage('Fetch Rollback Script') {
             steps {
-                sh '''
-                    kubectl patch service sentiment-api-service \
-                    -p '{"spec":{"selector":{"slot":"green"}}}'
-                '''
+                // Faulty auto-checkout bypass karne k liye explicit clean fetch laga diya
+                checkout scm: [
+                    $class: 'GitSCM', 
+                    branches: [[name: '*/main']], 
+                    extensions: [], 
+                    userRemoteConfigs: [[url: 'https://github.com/Maryam-Yaqoob/selfhealing-mlops-FA23-BAI-025.git']]
+                ]
+            }
+        }
+        stage('Rollback Deployment') {
+            steps {
+                echo "Alertmanager triggered fallback loop! Reverting cluster to stable dynamic tag..."
+                sh "kubectl apply -f k8s/pvc.yaml --kubeconfig=/tmp/.kube/config"
+                
+                // Live container image pointer ko unstable se stable rollback context par force update karein
+                sh "kubectl set image deployment/sentiment-blue-deployment sentiment-api=${DOCKERHUB_USER}/${IMAGE_NAME}:stable --kubeconfig=/tmp/.kube/config"
+                sh "kubectl set image deployment/sentiment-green-deployment sentiment-api=${DOCKERHUB_USER}/${IMAGE_NAME}:stable --kubeconfig=/tmp/.kube/config"
+                
+                sh "kubectl apply -f k8s/service.yaml --kubeconfig=/tmp/.kube/config"
+                echo "Cluster state successfully self-healed and rolled back to stable release!"
             }
         }
     }
