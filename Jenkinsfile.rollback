@@ -1,7 +1,6 @@
 pipeline {
     agent any
     options {
-        // Yeh hidden default automatic checkout ko crash hone se rokega
         skipDefaultCheckout()
     }
     environment {
@@ -9,9 +8,12 @@ pipeline {
         IMAGE_NAME     = 'sentiment-api'
     }
     stages {
-        stage('Fetch Rollback Script') {
+        stage('Clean and Fetch') {
             steps {
-                // Ab sirf hamara yeh explicit safe checkout chalega
+                // Workspace ko force clean karein taake corrupted git files wipe out ho jayein
+                cleanWs deleteDirs: true, notFailBuild: true
+                
+                // Bilkul fresh checkout run karein bina kisi dynamic cache conflict k
                 checkout scm: [
                     $class: 'GitSCM', 
                     branches: [[name: '*/main']], 
