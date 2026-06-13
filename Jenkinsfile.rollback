@@ -7,6 +7,11 @@ pipeline {
                     kubectl patch service sentiment-api-service \
                     -p '{"spec":{"selector":{"app":"sentiment-api","slot":"green"}}}' \
                     --kubeconfig=/var/jenkins_home/.kube/config
+                    
+                    docker rm -f sentiment-app-32500 || true
+                    docker run -d --name sentiment-app-32500 \
+                    -p 32500:5000 \
+                    maryamyaqoob8381/sentiment-api:stable
                 '''
             }
         }
