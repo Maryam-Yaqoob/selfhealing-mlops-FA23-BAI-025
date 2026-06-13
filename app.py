@@ -26,7 +26,7 @@ def predict():
     result = classifier(text)[0]
     confidence = result["score"]
     if _drift_injected:
-        confidence = random.uniform(0.3, 0.6)
+        confidence = random.uniform(0.3, 0.55)
     with open(LOG_FILE, "a") as f:
         f.write(f"{time.time()},{confidence:.4f}\n")
     return jsonify({"label":result["label"], "confidence": round(confidence, 4), "model_version": "unstable-v1", "request_count":_request_count})
