@@ -24,3 +24,10 @@ spec:
             memory: "256Mi"
           limits:
             memory: "512Mi"
+        volumeMounts:
+        - name: log-volume
+          mountPath: /app/logs
+      volumes:
+      - name: log-volume
+        persistentVolumeClaim:
+          claimName: sentiment-pvc

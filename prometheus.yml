@@ -1,21 +1,17 @@
 global:
-  scrape_interval: 15s
-
+  scrape_interval: 10s
 rule_files:
-  - "alert.rules"
-
+  - "alert.rules.yml"
 alerting:
   alertmanagers:
   - static_configs:
     - targets:
       - '16.192.74.29:9093'
-
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
-
-  - job_name: 'sentiment-api'
+  - job_name: 'sentiment-ml-exporter'
     metrics_path: '/metrics'
     static_configs:
       - targets: ['16.192.74.29:8000']
