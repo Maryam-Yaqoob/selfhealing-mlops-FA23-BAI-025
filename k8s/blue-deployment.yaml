@@ -15,14 +15,19 @@ spec:
         slot: blue
     spec:
       containers:
-        - name: sentiment-api
-          image: maryamyaqoob8381/sentiment-api:unstable
-          ports:
-            - containerPort: 5000
-          volumeMounts:
-            - name: log-volume
-              mountPath: /app/logs
-      volumes:
+      - name: sentiment-api
+        image: maryamyaqoob8381/sentiment-api:unstable
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            memory: "256Mi"
+          limits:
+            memory: "1Gi"
+        volumeMounts:
         - name: log-volume
-          persistentVolumeClaim:
-            claimName: sentiment-pvc
+          mountPath: /app/logs
+      volumes:
+      - name: log-volume
+        persistentVolumeClaim:
+          claimName: sentiment-pvc
