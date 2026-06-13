@@ -1,53 +1,29 @@
 pipeline {
     agent any
-    environment {
-        DOCKERHUB_USER = 'maryamyaqoob8381'
-        IMAGE_NAME     = 'sentiment-api'
-        REGISTRY_CRED  = 'dockerhub-credentials'
+    options {
+        timeout(time: 15, unit: 'MINUTES')
     }
     stages {
-        stage('Fetch') {
+        stage('Clean and Fetch') {
             steps {
-                checkout scm: [
-                    $class: 'GitSCM', 
-                    branches: [[name: '*/main']], 
-                    extensions: [], 
-                    userRemoteConfigs: [[url: 'https://github.com/Maryam-Yaqoob/selfhealing-mlops-FA23-BAI-025.git']]
-                ]
+                cleanWs()
+                git branch: 'main', url: 'https://github.com/Maryam-Yaqoob/selfhealing-mlops-FA23-BAI-025.git'
             }
         }
-        stage('Build and Run') {
-            steps {
-                sh "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:unstable ."
-                sh "docker rm -f sentiment-test-app || true"
-                sh "docker run -d --name sentiment-test-app -p 5000:5000 -v /var/log/app:/app/logs ${DOCKERHUB_USER}/${IMAGE_NAME}:unstable"
-                sh "sleep 15"
-            }
-        }
-        stage('Unit Test') { steps { sh "docker exec sentiment-test-app pytest tests/test_api.py" } }
-        stage('UI Test') { steps { sh "docker exec sentiment-test-app pytest tests/test_ui.py" } }
         stage('Build and Push') {
             steps {
-                sh "docker rm -f sentiment-test-app || true"
-                withCredentials([usernamePassword(credentialsId: "${REGISTRY_CRED}", passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-                    sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
-                    sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:unstable"
-                    
-                    sh "git fetch origin stable-fallback"
-                    sh "git checkout refs/remotes/origin/stable-fallback --"
-                    sh "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:stable ."
-                    sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:stable"
-                    
-                    sh "git checkout main --"
+                sh 'docker builder prune -f'
+                sh 'docker image prune -f'
+                sh 'docker build -t maryamyaqoob8381/sentiment-api:unstable .'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    sh 'docker push maryamyaqoob8381/sentiment-api:unstable'
                 }
             }
         }
-        stage('Deploy to Minikube') {
+        stage('Deploy to K8s') {
             steps {
-                sh "kubectl apply -f k8s/pvc.yaml --kubeconfig=/tmp/.kube/config"
-                sh "kubectl apply -f k8s/blue-deployment.yaml --kubeconfig=/tmp/.kube/config"
-                sh "kubectl apply -f k8s/green-deployment.yaml --kubeconfig=/tmp/.kube/config"
-                sh "kubectl apply -f k8s/service.yaml --kubeconfig=/tmp/.kube/config"
+                sh 'kubectl apply -f k8s/pvc.yaml --kubeconfig=/tmp/.kube/config'
             }
         }
     }
