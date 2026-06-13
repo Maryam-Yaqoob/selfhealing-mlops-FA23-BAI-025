@@ -1,37 +1,17 @@
 pipeline {
     agent any
-    options {
-        skipDefaultCheckout()
-    }
-    environment {
-        DOCKERHUB_USER = 'maryamyaqoob8381'
-        IMAGE_NAME     = 'sentiment-api'
-    }
     stages {
         stage('Clean and Fetch') {
             steps {
-                // Workspace ko force clean karein taake corrupted git files wipe out ho jayein
-                cleanWs deleteDirs: true, notFailBuild: true
-                
-                // Bilkul fresh checkout run karein bina kisi dynamic cache conflict k
-                checkout scm: [
-                    $class: 'GitSCM', 
-                    branches: [[name: '*/main']], 
-                    extensions: [], 
-                    userRemoteConfigs: [[url: 'https://github.com/Maryam-Yaqoob/selfhealing-mlops-FA23-BAI-025.git']]
-                ]
+                cleanWs()
+                git branch: 'main', url: 'https://github.com/Maryam-Yaqoob/selfhealing-mlops-FA23-BAI-025.git'
             }
         }
         stage('Rollback Deployment') {
             steps {
-                echo "Alertmanager triggered fallback loop! Reverting cluster to stable dynamic tag..."
-                sh "kubectl apply -f k8s/pvc.yaml --kubeconfig=/tmp/.kube/config"
-                
-                sh "kubectl set image deployment/sentiment-blue-deployment sentiment-api=${DOCKERHUB_USER}/${IMAGE_NAME}:stable --kubeconfig=/tmp/.kube/config"
-                sh "kubectl set image deployment/sentiment-green-deployment sentiment-api=${DOCKERHUB_USER}/${IMAGE_NAME}:stable --kubeconfig=/tmp/.kube/config"
-                
-                sh "kubectl apply -f k8s/service.yaml --kubeconfig=/tmp/.kube/config"
-                echo "Cluster state successfully self-healed and rolled back to stable release!"
+                echo 'Alertmanager triggered fallback loop! Reverting cluster to stable dynamic tag...'
+                // Sahi kubeconfig path jo har pipeline handle kar sake
+                sh 'kubectl apply -f k8s/pvc.yaml --kubeconfig=/var/jenkins_home/.kube/config'
             }
         }
     }
