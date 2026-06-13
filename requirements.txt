@@ -1,6 +1,7 @@
+--find-links https://download.pytorch.org/whl/cpu
 flask==3.0.3
 transformers==4.41.2
-torch==2.3.0
+torch==2.3.0+cpu
 prometheus-client==0.20.0
 requests==2.32.3
 pytest==8.2.2
