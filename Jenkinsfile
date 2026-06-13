@@ -59,7 +59,7 @@ pipeline {
                         git clone -b stable-fallback $(git config --get remote.origin.url) stable-fallback-src
                         docker build -t ${STABLE_TAG} stable-fallback-src
                     '''
-                    docker.withRegistry('', 'docker-hub-credentials-id') {
+                    docker.withRegistry('', 'dockerhub-credentials') {
                         sh '''
                             docker push ${UNSTABLE_TAG}
                             docker push ${STABLE_TAG}
