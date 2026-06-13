@@ -23,7 +23,7 @@ pipeline {
         }
         stage('Deploy to K8s') {
             steps {
-                sh 'kubectl apply -f k8s/pvc.yaml --kubeconfig=/tmp/.kube/config'
+                sh 'kubectl apply -f k8s/pvc.yaml --kubeconfig=/var/jenkins_home/.kube/config'
             }
         }
     }
