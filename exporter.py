@@ -6,7 +6,7 @@ from prometheus_client import start_http_server, Gauge
 PREDICTION_CONFIDENCE = Gauge('prediction_confidence_score', 'Latest prediction confidence score from the ML model')
 
 # Application NodePort URL inside EC2
-APP_URL = "http://localhost:32500/api/latest-confidence"
+APP_URL = "http://172.31.34.177:32500/api/latest-confidence"
 
 def track_metrics():
     while True:
