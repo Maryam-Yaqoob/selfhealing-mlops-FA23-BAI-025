@@ -74,6 +74,7 @@ pipeline {
                 sh '''
                     kubectl apply -f k8s/pvc.yaml --kubeconfig=${KUBECONFIG_PATH} --validate=false
                     kubectl apply -f k8s/blue-deployment.yaml --kubeconfig=${KUBECONFIG_PATH} --validate=false
+                    kubectl scale deployment sentiment-blue-deployment --replicas=1 --kubeconfig=${KUBECONFIG_PATH}
                     kubectl apply -f k8s/green-deployment.yaml --kubeconfig=${KUBECONFIG_PATH} --validate=false
                     kubectl apply -f k8s/service.yaml --kubeconfig=${KUBECONFIG_PATH} --validate=false
                 '''
